@@ -45,20 +45,20 @@ Server running on http://localhost:3001/
 >yarn add react react-dom 或者 npm install react react-dom --save<br />
 >创建client.js文件<br />
 ```js
-// client.js
+// Root.js
 const React = require('react');
 // import React, { Component } from 'react';
 
-class Client extends React.Component {
+class Root extends React.Component {
     constructor (props) {
         super(props);
         this._handleClick = this._handleClick.bind(this);
     }
     componentWillMount () {
-        console.log('Client 生命周期 willMount 触发了！');
+        console.log('root 生命周期 willMount 触发了！');
     }
     componentDidMount () {
-        console.log('Client 生命周期 didMount 触发了！');
+        console.log('root 生命周期 didMount 触发了！');
     }
     _handleClick () {
         alert('黄庆华超帅的！');
@@ -71,15 +71,15 @@ class Client extends React.Component {
     }
 }
 
-module.exports = Client;
-// export default Client;
+module.exports = Root;
+// export default Root;
 ```
 >修改server.js文件
 ```js
 // server.js
 const express = require('express');
 // 加入的
-const Client = require('./client.js');
+const Root = require('./Root.js');
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
 
@@ -88,7 +88,7 @@ const Server = express();
 Server.get('/', function (request, response) {
     // 变动的
     const html = ReactDOMServer.renderToString(
-        React.createElement(Client)
+        React.createElement(Root)
     );
     response.send(html);
 });
@@ -115,5 +115,36 @@ require('babel-register')({
 });
 ```
 >node server.js 启动，打开网页 http://localhost:3001/  正常了！ <br />
+>打开firebug会看到，元素上出现data-reactid的属性，这是 renderToString 这个方法产生的！还有另外一个也是服务端渲染的方法 renderToStaticMarkup, 不过他们之间差异，我也不清楚，自行百度吧！
+<p align="center">
+    <img src="./image/data-reactid.png" alt="data-reactid" width="100%">
+</p>
 
+这时候点击按钮，发现什么都没发生; 这是因为 ReactDOMServer 只是像字符串一样渲染出 html，换句话说只是在服务端渲染了，客户端还没有`接管代码`，所以这时候还不算是同构；
+>为了达到同构的效果，我们需要加入/修改一些文件
+```js
+// Root.js 把render return 里面的 节点 替换成 html 的形式
+// ...
+render() {
+    return (
+        <html>
+            <head>
+                <title>Universal React</title>
+            </head>
+            <body>
+                <div>
+                    <h1>Hello World!</h1>
+                    <button onClick={this._handleClick}>Click Me</button>
+                </div>
+                {/* 
+                因为会渲染成react的格式，所以<script></script>可以写成<script /> 
+                */}
+                <script src='/bundle.js' />
+            </body>
+        </html>
+    );
+}
+
+// 
+```
 

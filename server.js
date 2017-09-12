@@ -5,14 +5,16 @@ require('babel-register')({
 const express = require('express');
 const Server = express();
 
-const Client = require('./Client.js');
+const Root = require('./Root.jsx');
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
 
+// 静态文件路径
+Server.use(express.static('public'));
 
 Server.get('/', function (request, response) {
     const html = ReactDOMServer.renderToString(
-        React.createElement(Client)
+        React.createElement(Root)
     );
     response.send(html);
 });
