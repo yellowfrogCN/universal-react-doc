@@ -14,7 +14,7 @@ class Root extends React.Component {
         console.log('Client 生命周期 didMount 触发了！');
     }
     _handleClick () {
-        alert('黄庆华超帅的！');
+        alert('yf超帅的！');
     }
     render() {
         return (<html>

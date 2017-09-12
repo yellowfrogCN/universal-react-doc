@@ -1,5 +1,5 @@
 # react服务端渲染的实现思路
-## 利用 NodeJs + Express 搭建入门级的react服务端渲染
+## Step1: 利用 NodeJs + Express 搭建入门级的react服务端渲染
 >Express 是为了更方便的搭建HTTP服务器
 * 依赖需求
 - [nodeJs 8+](http://nodejs.cn/)
@@ -61,7 +61,7 @@ class Root extends React.Component {
         console.log('root 生命周期 didMount 触发了！');
     }
     _handleClick () {
-        alert('黄庆华超帅的！');
+        alert('yf超帅的！');
     }
     render() {
         return (<div>
@@ -204,8 +204,14 @@ Server.use(express.static('public'));
     "start": "webpack && node server.js"
 },
 ```
->npm start 重启服务器
+>npm start 重启服务器,看到控制台出现一下代码
 <p align="center">
     <img src="./image/bundle.png" alt="bundle" width="100%">
 </p>
 
+>打开网页 http://localhost:3001/ 可以看到按钮可以点击，还弹出来很符合实际的对话框，网页的console也出现生命周期里的console.log
+<p align="center">
+    <img src="./image/step1.png" alt="step1 finish" width="100%">
+</p>
+
+>入门级的同构完成，但离实际开发还有很大一段距离，Step2 会是`前端路由`在服务端渲染中的应用
