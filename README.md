@@ -43,7 +43,7 @@ Server running on http://localhost:3001/
 `如果报express没有发现，全局安装express即可`<br />
 ### 加入react
 >yarn add react react-dom 或者 npm install react react-dom --save<br />
->创建client.js文件<br />
+>创建 Root.js文件<br />
 ```js
 // Root.js
 const React = require('react');
@@ -120,10 +120,11 @@ require('babel-register')({
     <img src="./image/data-reactid.png" alt="data-reactid" width="100%">
 </p>
 
-这时候点击按钮，发现什么都没发生; 这是因为 ReactDOMServer 只是像字符串一样渲染出 html，换句话说只是在服务端渲染了，客户端还没有`接管代码`，所以这时候还不算是同构；
->为了达到同构的效果，我们需要加入/修改一些文件
+这时候点击按钮，发现什么都没发生; 而且控制台也只出现`willMount`没有出现`didMount`, 这是因为 ReactDOMServer 只是像字符串一样渲染出 html，换句话说只是在服务端渲染了，客户端还没有`接管代码`，这时候还不算是同构；
+>为了达到同构的效果，我们需要加入/修改一些文件<br />
+>修改 Root.js 把render return 里面的 节点 替换成 html 的形式
 ```js
-// Root.js 把render return 里面的 节点 替换成 html 的形式
+// Root.js
 // ...
 render() {
     return (
@@ -144,7 +145,67 @@ render() {
         </html>
     );
 }
-
-// 
 ```
+- 新增 public 文件夹，用于存放静态文件 <br />
+>mkdir public
+- 新增 Entry.js 文件, 用于处理 `服务端渲染时，前端的同构`
+>touch Entry.js
+```js
+// Entry.js
+const React = require('react');
+const ReactDOM = require('react-dom');
+const Root = require('./Root.js');
+
+ReactDOM.render(
+    React.createElement(Root),
+    // document 可以理解为浏览器
+    document
+);
+```
+- 安装 babel-loader webpack 依赖
+>yarn add webpack babel-loader 或者 npm install webpack babel-loader --save
+- 新增 webpack.config.js 文件
+>touch webpack.config.js<br />
+>本文主要是讲解服务端渲染，webpack详细的配置问题这边不做详细讲解
+```js
+// webpack.config.js
+const path = require('path');
+const webpack = require('webpack');
+module.exports = {
+    entry: ['./Entry.js'],
+    output: {
+        filename: 'bundle.js',
+        path: path.join(__dirname, 'public'),
+    },
+    module: {
+        loaders: [
+            {
+                test: /\.js|x?$/,
+                exclude: /node_modules/,
+                loader: 'babel-loader',
+                query: {
+                    presets: ['react']
+                }
+            }
+        ]
+    }
+};
+```
+- 修改server.js,加入托管静态文件的功能
+```js
+// ...
+// 托管静态文件
+Server.use(express.static('public'));
+// ...
+```
+- 修改package.json 的 "scripts"
+```js
+"scripts": {
+    "start": "webpack && node server.js"
+},
+```
+>npm start 重启服务器
+<p align="center">
+    <img src="./image/bundle.png" alt="bundle" width="100%">
+</p>
 

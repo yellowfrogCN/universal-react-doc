@@ -5,11 +5,11 @@ require('babel-register')({
 const express = require('express');
 const Server = express();
 
-const Root = require('./Root.jsx');
+const Root = require('./Root.js');
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
 
-// 静态文件路径
+// 托管静态文件
 Server.use(express.static('public'));
 
 Server.get('/', function (request, response) {
