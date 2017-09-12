@@ -1,15 +1,26 @@
+// server.js
+require('babel-register')({
+    presets: ['react']
+});
 const express = require('express');
-const server = express();
+const Server = express();
 
-server.get('/', function (request, response) {
-    const html = `<h1>universal - react<h1>`;
+const Client = require('./Client.js');
+const React = require('react');
+const ReactDOMServer = require('react-dom/server');
+
+
+Server.get('/', function (request, response) {
+    const html = ReactDOMServer.renderToString(
+        React.createElement(Client)
+    );
     response.send(html);
 });
 
 // 服务器端口
 const port = 3001;
 
-server.listen(port, (err) => {
+Server.listen(port, (err) => {
     if (err) {
         console.error(err);
         return;
