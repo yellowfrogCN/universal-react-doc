@@ -1,6 +1,6 @@
 // Root.js
-const React = require('react');
-// import React, { Component } from 'react';
+// const React = require('react');
+import React from 'react';
 
 class Root extends React.Component {
     constructor (props) {
@@ -23,11 +23,12 @@ class Root extends React.Component {
                 </head>
                 <body>
                     <div>
-                        <h1>Hello World!</h1>
+                        <h1>Hello World！!</h1>
                         <button onClick={this._handleClick}>Click Me</button>
                     </div>
                     {/* 
-                    因为会渲染成react的格式，所以<script></script>可以写成<script /> 
+                    因为会渲染成react的格式，所以<script></script>可以写成<script />,
+                    注意路径 
                     */}
                     <script src='/bundle.js' />
                 </body>
@@ -35,5 +36,5 @@ class Root extends React.Component {
     }
 }
 
-module.exports = Root;
-// export default Root;
+// module.exports = Root;
+export default Root;

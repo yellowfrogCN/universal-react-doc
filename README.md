@@ -163,7 +163,7 @@ ReactDOM.render(
 );
 ```
 - 安装 babel-loader webpack 依赖
->yarn add webpack babel-loader 或者 npm install webpack babel-loader --save
+>yarn add webpack babel-loader babel-preset-es2015 或者 npm install webpack babel-loader babel-preset-es2015 --save
 - 新增 webpack.config.js 文件
 >touch webpack.config.js<br />
 >本文主要是讲解服务端渲染，webpack详细的配置问题这边不做详细讲解
@@ -184,7 +184,7 @@ module.exports = {
                 exclude: /node_modules/,
                 loader: 'babel-loader',
                 query: {
-                    presets: ['react']
+                    presets: ['react', 'es2015']
                 }
             }
         ]
@@ -209,9 +209,55 @@ Server.use(express.static('public'));
     <img src="./image/bundle.png" alt="bundle" width="100%">
 </p>
 
->打开网页 http://localhost:3001/ 可以看到按钮可以点击，还弹出来很符合实际的对话框，网页的console也出现生命周期里的console.log
+>打开网页 http://localhost:3001/ 可以看到按钮可以点击，还弹出来很符合实际的对话框，网页的console也出现生命周期里的console.log<br />
 <p align="center">
     <img src="./image/step1.png" alt="step1 finish" width="100%">
 </p>
 
->入门级的同构完成，但离实际开发还有很大一段距离，Step2 会是`前端路由`在服务端渲染中的应用
+* 为了可以更好的理解同构，大家可以刷新多几遍 网页 http://localhost:3001/ 然后对比一下 `后端控制台` 与 `前端控制台`
+
+<p align="center">
+    <img src="./image/willMount.png" alt="step1 finish" width="100%">
+</p>
+<p align="center">
+    <img src="./image/willandDid.png" alt="step1 finish" width="100%">
+</p>
+<p align="center">
+    <img src="./image/universal-step1.png" alt="step1 finish" width="100%">
+</p>
+
+* 这就是同构——`后台与前端同时渲染`Root.js
+
+* 到这里 Step1 入门级的同构完成，但离实际开发还有很大一段距离，接下来的 Step2 会是`前端路由`在服务端渲染中的应用
+### Root.js使用ES6语法----import/export (了解一下即可)
+>细心的人会发现，我们在服务端与客户端同时运行的文件Root.js,里面的导入/导出是使用CommonJs的语法，并不是ES6的import/export语法,原因是服务端并没有经过webpack处理，服务端还是NodeJs的地盘，`NodeJs是支持CommonJs，但仅支持部分ES6语法的`,为了让服务端支持ES6语法的import/export,我们只要稍微修改下server.js即可！
+```js
+// server.js
+require('babel-register')({
+    // presets: ['react']
+    presets: ['react', 'es2015']
+});
+// ...
+```
+>对，就是把babel-preset-es2015这个插件引入到这里就可以了！<br />
+>然后我们修改一下Root.js与server.js
+```js
+// Root.js
+
+// const React = require('react');
+import React from 'react';
+
+//...
+
+// module.exports = Root;
+export default Root;
+```
+>因为换成了 ES6 的export default,所以server.js里的也要相应的修改;<br />
+>CommonJS ES6 AMD等的导入导出之间的关系，网上一搜一堆，这边不做细说;
+```js
+// const Root = require('./Root.js');
+const Root = require('./Root.js').default;
+```
+>因为Entry.js是经过了webpack处理，webpack是默认支持CommonJS,再加上module里配置了支持ES6,所以Entry.js使用CommonJS语法或者ES6语法都是没问题的，有兴趣的可以自行去修改为ES6的import语法;
+## Step2: 前端路由在服务端渲染中的应用
+

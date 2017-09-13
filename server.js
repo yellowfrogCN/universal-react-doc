@@ -1,11 +1,12 @@
 // server.js
 require('babel-register')({
-    presets: ['react']
+    presets: ['react', 'es2015']
 });
 const express = require('express');
 const Server = express();
 
-const Root = require('./Root.js');
+// const Root = require('./Root.js');
+const Root = require('./Root.js').default;
 const React = require('react');
 const ReactDOMServer = require('react-dom/server');
 
