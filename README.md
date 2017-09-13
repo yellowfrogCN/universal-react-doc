@@ -274,10 +274,7 @@ const Root = require('./Root.js').default;
 
 >安装react-router @3<br />
 >yarn add react-router@3 或者 npm install react-router@3 --save<br />
->新建立routes文件夹,在routes里建立index.js,把server.js的路由代码移到index.js中<br />
->mkdir routes<br />
->cd routes<br />
->touch index.js<br />
+>mkdir routes 新建立routes文件夹,touch index.js 在routes里建立index.js,把server.js的路由代码移到index.js中<br />
 ```js
 // server.js
 
@@ -320,4 +317,81 @@ module.exports = router;
 ```
 >npm start 打开网页 http://localhost:3001/, 正常！
 
+* 根据[router-router@3的服务端渲染文档](https://github.com/ReactTraining/react-router/blob/v3/docs/guides/ServerRendering.md),继续修改routes/index.js文件
+```js
+// routes/index.js
+import express from 'express';
+import React from 'react';
+import {
+    renderToString
+} from 'react-dom/server';
+import Root from '../Root';
+import {
+    match, RouterContext
+} from 'react-router';
+import routes from './configureRoute';
+const router = express.Router();
+
+
+router.get('*', function (req, res) {
+    // Note that req.url here should be the full URL path from
+    // the original request, including the query string.
+    match(
+        {routes, location: req.url},
+        (error, redirectLocation, renderProps) => {
+            if (error) {
+                res.status(500).send(error.message)
+            } else if (redirectLocation) {
+                res.redirect(302, redirectLocation.pathname + redirectLocation.search)
+            } else if (renderProps) {
+                // You can also check renderProps.components or renderProps.routes for
+                // your "not found" component or route respectively, and send a 404 as
+                // below, if you're using a catch-all route.
+                const html = renderToString(
+                    <RouterContext
+                        {...renderProps}
+
+                    />
+                )
+                res.status(200).send(html)
+            } else {
+                res.status(404).send('Not found')
+            }
+        }
+    )
+});
+
+module.exports = router;
+```
+>touch configureRoute.js 在routes中新建一个 configureRoute.js 文件
+```js
+import React from 'react';
+import {
+    Router, Route, browserHistory
+} from 'react-router';
+import Root from '../Root';
+
+export default (
+    <Router history={browserHistory}>
+        <Route path='/' component={Root}>
+        </Route>
+    </Router>
+)
+```
+>修改Entry.js文件
+```js
+// Entry.js
+// import React from 'react';
+import ReactDOM from 'react-dom';
+// import Root from './Root';
+import routes from './routes/configureRoute';
+
+ReactDOM.render(
+    routes,
+    // React.createElement(Root),
+    // document 可以理解为浏览器
+    document
+);
+```
+>npm start 打开网页 http://localhost:3001/, 显示正常 
 
