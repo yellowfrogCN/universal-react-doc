@@ -2,10 +2,16 @@
 ## Step1: 利用 NodeJs + Express 搭建入门级的react服务端渲染
 >Express 是为了更方便的搭建HTTP服务器
 * 依赖需求
-- [nodeJs 8+](http://nodejs.cn/)
-- [expressJs 4+](http://www.expressjs.com.cn/) `最好全局安装下`
+- [nodeJs @8+](http://nodejs.cn/)
+- [expressJs @4+](http://www.expressjs.com.cn/) `最好全局安装下`
 - react 15+
 - react-dom 15+
+- babel-preset-react
+- babel-preset-es2015
+- babel-register
+- babel-loader
+- [webpack @2+](https://doc.webpack-china.org/)
+
 
 ### 建一个server.js目录，利用 Express 起一个HTTP
 >npm init -y<br />
@@ -228,7 +234,6 @@ Server.use(express.static('public'));
 
 * 这就是同构——`后台与前端同时渲染`Root.js
 
-* 到这里 Step1 入门级的同构完成，但离实际开发还有很大一段距离，接下来的 Step2 会是`前端路由`在服务端渲染中的应用
 ### Root.js使用ES6语法----import/export (了解一下即可)
 >细心的人会发现，我们在服务端与客户端同时运行的文件Root.js,里面的导入/导出是使用CommonJs的语法，并不是ES6的import/export语法,原因是服务端并没有经过webpack处理，服务端还是NodeJs的地盘，`NodeJs是支持CommonJs，但仅支持部分ES6语法的`,为了让服务端支持ES6语法的import/export,我们只要稍微修改下server.js即可！
 ```js
@@ -259,5 +264,60 @@ export default Root;
 const Root = require('./Root.js').default;
 ```
 >因为Entry.js是经过了webpack处理，webpack是默认支持CommonJS,再加上module里配置了支持ES6,所以Entry.js使用CommonJS语法或者ES6语法都是没问题的，有兴趣的可以自行去修改为ES6的import语法;
+
+* 到这里 Step1 入门级的同构完成，但离实际开发还有很大一段距离，接下来的 Step2 会是`前端路由`在服务端渲染中的应用
+
 ## Step2: 前端路由在服务端渲染中的应用
+>react社区的路由框架有好几种，其中最有名的就是react-router了！本次也是在react-router @3 版本基础上进行服务端渲染;
+- 依赖需求
+- [react-router @3](https://github.com/ReactTraining/react-router/tree/v3/docs)
+
+>安装react-router @3<br />
+>yarn add react-router@3 或者 npm install react-router@3 --save<br />
+>新建立routes文件夹,在routes里建立index.js,把server.js的路由代码移到index.js中<br />
+>mkdir routes<br />
+>cd routes<br />
+>touch index.js<br />
+```js
+// server.js
+
+// const Root = require('./Root.js').default;
+// const React = require('react');
+// const ReactDOMServer = require('react-dom/server');
+// Server.get('/', function (request, response) {
+//     const html = ReactDOMServer.renderToString(
+//         React.createElement(Root)
+//     );
+//     response.send(html);
+// });
+
+// 使用路由
+Server.use(require('./routes'));
+```
+```js
+// routes/index.js
+// 正常使用 ES6 语法
+import express from 'express';
+const router = express.Router();
+// const router = require('express').Router();
+import Root from '../Root';
+// const Root = require('../Root.js').default;
+import React from 'react';
+// const React = require('react');
+import {
+    renderToString
+} from 'react-dom/server';
+// const ReactDOMServer = require('react-dom/server');
+
+router.get('/', function (request, response) {
+    const html = renderToString(
+        React.createElement(Root)
+    );
+    response.send(html);
+});
+
+module.exports = router;
+```
+>npm start 打开网页 http://localhost:3001/, 正常！
+
 

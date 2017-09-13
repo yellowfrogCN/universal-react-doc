@@ -4,21 +4,11 @@ require('babel-register')({
 });
 const express = require('express');
 const Server = express();
-
-// const Root = require('./Root.js');
-const Root = require('./Root.js').default;
-const React = require('react');
-const ReactDOMServer = require('react-dom/server');
-
 // 托管静态文件
 Server.use(express.static('public'));
 
-Server.get('/', function (request, response) {
-    const html = ReactDOMServer.renderToString(
-        React.createElement(Root)
-    );
-    response.send(html);
-});
+// 使用路由
+Server.use(require('./routes'));
 
 // 服务器端口
 const port = 3001;
