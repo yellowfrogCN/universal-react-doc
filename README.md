@@ -1,5 +1,5 @@
-# react服务端渲染的实现思路
-## Step1: 利用 NodeJs + Express 搭建入门级的react服务端渲染
+# react同构的实现思路
+## Step1: 利用 NodeJs + Express 搭建入门级的react同构
 >Express 是为了更方便的搭建HTTP服务器
 * 依赖需求
 - [nodeJs @8+](http://nodejs.cn/)
@@ -121,12 +121,12 @@ require('babel-register')({
 });
 ```
 >node server.js 启动，打开网页 http://localhost:3001/  正常了！ <br />
->打开firebug会看到，元素上出现data-reactid的属性，这是 renderToString 这个方法产生的！还有另外一个也是服务端渲染的方法 renderToStaticMarkup, 不过他们之间差异，我也不清楚，自行百度吧！
+>打开firebug会看到，元素上出现data-reactid的属性，这是 renderToString 这个方法产生的！还有另外一个方法 renderToStaticMarkup, 不过他们之间差异，我也不清楚，自行百度吧！
 <p align="center">
     <img src="./image/data-reactid.png" alt="data-reactid" width="100%">
 </p>
 
-这时候点击按钮，发现什么都没发生; 而且控制台也只出现`willMount`没有出现`didMount`, 这是因为 ReactDOMServer 只是像字符串一样渲染出 html，换句话说只是在服务端渲染了，客户端还没有`接管代码`，这时候还不算是同构；
+这时候点击按钮，发现什么都没发生; 而且控制台也只出现`willMount`没有出现`didMount`, 这是因为 ReactDOMServer 只是像字符串一样渲染出 html，换句话说只是在服务端渲染了，前端还没有`接管代码`，这时候还不算是同构；
 >为了达到同构的效果，我们需要加入/修改一些文件<br />
 >修改 Root.js 把render return 里面的 节点 替换成 html 的形式
 ```js
@@ -172,7 +172,7 @@ ReactDOM.render(
 >yarn add webpack babel-loader babel-preset-es2015 或者 npm install webpack babel-loader babel-preset-es2015 --save
 - 新增 webpack.config.js 文件
 >touch webpack.config.js<br />
->本文主要是讲解服务端渲染，webpack详细的配置问题这边不做详细讲解
+>本文主要是讲解同构，webpack详细的配置问题这边不做详细讲解
 ```js
 // webpack.config.js
 const path = require('path');
@@ -235,7 +235,7 @@ Server.use(express.static('public'));
 * 这就是同构——`后台与前端同时渲染`Root.js
 
 ### Root.js使用ES6语法----import/export (了解一下即可)
->细心的人会发现，我们在服务端与客户端同时运行的文件Root.js,里面的导入/导出是使用CommonJs的语法，并不是ES6的import/export语法,原因是服务端并没有经过webpack处理，服务端还是NodeJs的地盘，`NodeJs是支持CommonJs，但仅支持部分ES6语法的`,为了让服务端支持ES6语法的import/export,我们只要稍微修改下server.js即可！
+>细心的人会发现，我们在服务端与前端同时运行的文件Root.js,里面的导入/导出是使用CommonJs的语法，并不是ES6的import/export语法,原因是服务端并没有经过webpack处理，服务端还是NodeJs的地盘，`NodeJs是支持CommonJs，但仅支持部分ES6语法的`,为了让服务端支持ES6语法的import/export,我们只要稍微修改下server.js即可！
 ```js
 // server.js
 require('babel-register')({
@@ -265,10 +265,10 @@ const Root = require('./Root.js').default;
 ```
 >因为Entry.js是经过了webpack处理，webpack是默认支持CommonJS,再加上module里配置了支持ES6,所以Entry.js使用CommonJS语法或者ES6语法都是没问题的，有兴趣的可以自行去修改为ES6的import语法;
 
-* 到这里 Step1 入门级的同构完成，但离实际开发还有很大一段距离，接下来的 Step2 会是`前端路由`在服务端渲染中的应用
+* 到这里 Step1 入门级的同构完成，但离实际开发还有很大一段距离，接下来的 Step2 会是`前端路由`在同构中的应用
 
-## Step2: 前端路由在服务端渲染中的应用
->react社区的路由框架有好几种，其中最有名的就是react-router了！本次也是在react-router @3 版本基础上进行服务端渲染;
+## Step2: 前端路由在同构中的应用
+>react社区的路由框架有好几种，其中最有名的就是react-router了！本次也是在react-router @3 版本基础上进行同构;
 - 依赖需求
 - [react-router @3](https://github.com/ReactTraining/react-router/tree/v3/docs)
 
@@ -317,7 +317,7 @@ module.exports = router;
 ```
 >npm start 打开网页 http://localhost:3001/, 正常！
 
-* 根据[router-router@3的服务端渲染文档](https://github.com/ReactTraining/react-router/blob/v3/docs/guides/ServerRendering.md),继续修改routes/index.js文件
+* 根据[router-router@3的同构文档](https://github.com/ReactTraining/react-router/blob/v3/docs/guides/ServerRendering.md),继续修改routes/index.js文件
 ```js
 // routes/index.js
 import express from 'express';
@@ -394,4 +394,85 @@ ReactDOM.render(
 );
 ```
 >npm start 打开网页 http://localhost:3001/, 显示正常 
+>现在我们加入静态路由，试验一下
+```js
+// Root.js
+import { Link } from 'react-router';
+// ...
+<ul>
+    <li>
+        <Link to='/'>Index</Link>
+    </li>
+    <li>
+        <Link to='/about'>About</Link>
+    </li>
+</ul>
+{this.props.children}
+// ...
+```
+>新增container，在container目录下新建Index.js/About.js
+```js
+// Index.js
+import React, {Component} from 'react';
 
+class Index extends Component {
+    render () {
+        return (
+            <p>
+                Current: <strong>Index</strong>
+            </p>
+        )
+    }
+}
+export default Index;
+
+// About.js
+import React, {Component} from 'react';
+
+class About extends Component {
+    render () {
+        return (
+            <p>
+                Current: <strong>About</strong>
+            </p>
+        )
+    }
+}
+export default About;
+```
+>在configureRoute.js里引入Index.js与About.js路由
+```js
+// configureRoute.js
+
+// ...
+import Index from '../container/Index';
+import About from '../container/About';
+
+export default (
+    <Router history={browserHistory}>
+        <Route path='/' component={Root}>
+            <IndexRoute component={Index} />
+            <Route path='/about' component={About} />
+        </Route>
+    </Router>
+)
+```
+>npm start 打开网页 http://localhost:3001/ ,点击 正常 ！
+>我们在routes/index.js里面加上一个console.log('renderProps');
+```js
+// routes/index.js
+// ...
+console.log('renderProps');
+// ...
+```
+>重启，打开网页，重点看`后台控制台`
+<p align="center">
+    <img src="./image/react-router-universal.png" alt="step1 finish" width="100%">
+</p>
+
+>我们发现，除非手动刷新页面，无论`前端路由`如何点击，renderProps都在只会出现`后台控制台`出现一次，说明，前端已经接管了路由，路由部分同构成功 - -.V
+
+* 在刚才的灵魂画师的图，我们在加入路由部分，更方便理解路由部分的前后端同构；
+<p align="center">
+    <img src="./image/universal-step2.png" alt="step1 finish" width="100%">
+</p>
