@@ -1,4 +1,15 @@
 # react同构的实现思路
+## 参考
+* 文本类
+* [redux服务端渲染](http://cn.redux.js.org/docs/recipes/ServerRendering.html)
+* [react-router @3](https://github.com/ReactTraining/react-router/tree/v3/docs)
+* [简书上一篇不错的文章，基于KOA的](http://www.jianshu.com/p/0ecd727107bb)
+* [universal-react-tutorial-video(需要翻墙)](https://www.youtube.com/watch?v=k66bOHX8MnY&list=PLVgOtoUBG2md5HxaABCcnfstF88CPzUeD&index=1)
+* 脚手架
+* [universal-react-tutorial(推荐，蛮多思路借鉴于这个)](https://github.com/remarkablemark/universal-react-tutorial)
+* [react-redux-universal-hot-example(一万多star，但基本没怎么参考)](https://github.com/erikras/react-redux-universal-hot-example)
+* [universal-react](https://github.com/DominicTobias/universal-react)
+* [基于KOA2、react-router @4 的一个脚手架](https://github.com/kimjuny/koa-react-universal)
 ## Step1: 利用 NodeJs + Express 搭建入门级的react同构
 >Express 是为了更方便的搭建HTTP服务器
 * 依赖需求
