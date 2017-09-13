@@ -478,12 +478,20 @@ console.log('renderProps');
 ```
 >重启，打开网页，重点看`后台控制台`
 <p align="center">
-    <img src="./image/react-router-universal.png" alt="step1 finish" width="100%">
+    <img src="./image/react-router-universal.png" alt="step2 finish" width="100%">
 </p>
 
 >我们发现，除非手动刷新页面，无论`前端路由`如何点击，renderProps都在只会出现`后台控制台`出现一次，说明，前端已经接管了路由，路由部分同构成功 - -.V
 
 * 在刚才的灵魂画师的图，我们在加入路由部分，更方便理解路由部分的前后端同构；
 <p align="center">
-    <img src="./image/universal-step2.png" alt="step1 finish" width="100%">
+    <img src="./image/universal-step2.png" alt="step2 finish" width="100%">
 </p>
+
+* 到这里，Step2：react-router的同构算是基本完成，后续会在此基础上加上动态路由等，但接下来的Step3,重点是 redux 的同构方案！
+
+## Step3: redux 的同构#1
+><font color=red>redux的同构，这边分成两步<br />
+>第一步先把redux集成进同构中<br />
+>第二步再在第一部的基础上，考虑在前端`接管页面`时，同时拿到页面的数据！也就是本页的异步请求，发生在服务端</font>
+
