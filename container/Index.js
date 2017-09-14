@@ -4,7 +4,6 @@ import { connect } from 'react-redux';
 import {
     getDan
 } from '../action/indexAction';
-import Helmet from 'react-helmet';
 
 class Index extends Component {
 
