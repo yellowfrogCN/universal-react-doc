@@ -7,16 +7,15 @@ import {
 
 class Index extends Component {
 
-    static readyOnActions(props) {
-        console.log(11, this)
+    static readyOnActions(dispatch) {
         return Promise.all([
-            props.dispatch(getDan())
+            dispatch(getDan())
         ]);
     } 
     componentDidMount () {
         console.log('调用 Index 组件!', this.props);
-        // const { getDan } = this.props;
-        Index.readyOnActions(this.props)
+        const { dispatch } = this.props;
+        Index.readyOnActions(dispatch)
     }
     render () {
         const {data: { title, list }} = this.props;

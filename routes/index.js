@@ -22,11 +22,10 @@ function routeIsUnmatched(renderProps) {
 function handleRoute(res, renderProps) {
     // const store = configureStore();
     const status = routeIsUnmatched(renderProps) ? 404 : 200;
-    return res.status(status).send(renderProps)
     const readyOnAllActions = renderProps.components
       .filter(component => {
-          console.log(component.readyOnActions)
-          return component.readyOnActions !== undefined
+          return component && component.readyOnActions
+        //   return component.readyOnActions
       })
       .map(component => component.readyOnActions(store.dispatch, renderProps.params));
   
