@@ -8,10 +8,9 @@
 * 脚手架
 * [universal-react-tutorial(推荐，蛮多思路借鉴于这个)](https://github.com/remarkablemark/universal-react-tutorial)
 * [react-redux-universal-hot-example(一万多star，但基本没怎么参考)](https://github.com/erikras/react-redux-universal-hot-example)
-* [universal-react](https://github.com/DominicTobias/universal-react)
+* [universal-react（服务端异步加载数据的思路借鉴于此）](https://github.com/DominicTobias/universal-react)
 * [基于KOA2、react-router @4 的一个脚手架](https://github.com/kimjuny/koa-react-universal)
-## Step1: 利用 NodeJs + Express 搭建入门级的react同构
->Express 是为了更方便的搭建HTTP服务器
+
 * 依赖需求
 - [nodeJs @8+](http://nodejs.cn/)
 - [expressJs @4+](http://www.expressjs.com.cn/) `最好全局安装下`
@@ -22,6 +21,9 @@
 - babel-register
 - babel-loader
 - [webpack @2+](https://doc.webpack-china.org/)
+
+## Step1: 利用 NodeJs + Express 搭建入门级的react同构
+>Express 是为了更方便的搭建HTTP服务器
 
 
 ### 建一个server.js目录，利用 Express 起一个HTTP
@@ -496,7 +498,19 @@ console.log('renderProps');
 >第二步再在第一部的基础上，考虑在前端`接管页面`时，同时拿到页面的数据！也就是本页的异步请求，发生在服务端
 
 * 安装依赖
->yarn add redux redux-logger redux-thunk react-redux 或者 npm install redux redux-logger redux-thunk react-redux --save
+* 小插曲，相信大家不断的npm start 已经烦死了吧！这边先用一个简单实用的方式来长时间启动服务器！
+>yarn add npm-run-all nodemon --dev 或者 npm install npm-run-all npm --save-dev
+>然后修改我们的 package.json 里的 srcipts
+```js
+"scripts": {
+    "start": "npm-run-all --parallel watch:*",
+    "watch:webpack": "webpack -w",
+    "watch:server": "nodemon --ext js,jsx --ignore public/ server.js"
+},
+```
+>以后只需要npm start 就可以修改代码，然后 F5 刷新即可！（热更新后续加入）
+* 加入redux
+>yarn add redux redux-logger redux-thunk react-redux [redux-devtools-extension](https://github.com/yellowfrogCN/reduxDevTools) 或者 npm install redux redux-logger redux-thunk react-redux [redux-devtools-extension](https://github.com/yellowfrogCN/reduxDevTools) --save
 
 >新建文件夹redux,在redux文件夹里建立configureStore.js与index.js<br />
 
@@ -506,27 +520,37 @@ import { createStore, applyMiddleware } from 'redux';
 import thunkMiddleware from 'redux-thunk';
 import rootReducer from '../reducer';
 import { createLogger } from 'redux-logger';
+import { composeWithDevTools } from 'redux-devtools-extension';
 
 const logger = createLogger({
-  collapsed: false
+  collapsed: true
 })
 
-const createStoreWithMiddleware = applyMiddleware(
-  logger,
-  thunkMiddleware,
-)(createStore);
+const composeEnhancers = composeWithDevTools({
+  // 后续如需配置参数，可在这里配置
+});
 
-const initReduxDevTool = (typeof window === 'object' && typeof window.devToolsExtension !== 'undefined') ? window.devToolsExtension() : f => f;
+const middleware = [thunkMiddleware, logger];
 
-export default function configureStore(initialState) {
-  const store = createStoreWithMiddleware(
-    rootReducer,
-    initialState,
-    initReduxDevTool
-  );
+const configureStore = (preloadedState = {}) => {
+    const store = createStore(
+        rootReducer,
+        preloadedState,
+        composeEnhancers(
+            applyMiddleware(...middleware)
+        )
+    );
 
-  return store;
+    if (module.hot) {
+        module.hot.accept('../reducer', () => {
+            store.replaceReducer(rootReducer);
+        });
+    }
+
+    return store;
 }
+
+export default configureStore;
 
 ```
 
@@ -535,32 +559,69 @@ export default function configureStore(initialState) {
 import configureStore from './configureStore.dev';
 export default configureStore;
 ```
+>新建文件夹 contants/index 用于存放常量，主要是 action.type
+```js
+// contants/index
+export const GET_DAN_INFO = 'GET_DAN_INFO';
+export const GET_DAN_INFO_SUCCESS = 'GET_DAN_INFO_SUCCESS';
+export const GET_DAN_INFO_FAILED = 'GET_DAN_INFO_FAILED';
+
+export const GET_TJ_INFO = 'GET_TJ_INFO';
+export const GET_TJ_INFO_SUCCESS = 'GET_TJ_INFO_SUCCESS';
+export const GET_TJ_INFO_FAILED = 'GET_TJ_INFO_FAILED'; 
+```
 >新建文件夹 reducer,在 reducer 文件夹里分别建立 index.js aboutReducer.js（对应About组件的数据） indexReducer.js（对应Index组件的数据）<br />
 
 ```js
 // reducer/indexReducer.js
+import * as types from '../contants';
+
 function indexReducer (
     state = {
-        title: 'i_am_IndexComponent',
-        list: []
+        title: 'Redux 作者：Dan Abramov',
+        list: {}
     },
     action
 ) {
-    return state;
+    switch (action.type) {
+        case types.GET_DAN_INFO_SUCCESS:
+            return Object.assign({}, state, {
+                list: action.payload
+            })
+        case types.GET_DAN_INFO_FAILED:
+            return Object.assign({}, state, {
+                list: {}
+            }) 
+        default:
+            return state;
+    }
 }
 
 export default indexReducer;
 ```
 ```js
 // reducer/aboutReducer.js
+// reducer/aboutReducer.js
+import * as types from '../contants';
 function aboutReducer (
     state = {
-        title: 'i_am_AboutComponent',
-        list: []
+        title: '编程界的杀马特、设计技术远超陈冠希的TJ大神',
+        list: {}
     },
     action
 ) {
-    return state;
+    switch (action.type) {
+        case types.GET_TJ_INFO_SUCCESS:
+            return Object.assign({}, state, {
+                list: action.payload
+            })
+        case types.GET_TJ_INFO_FAILED:
+            return Object.assign({}, state, {
+                list: {}
+            }) 
+        default:
+            return state;
+    }
 }
 
 export default aboutReducer;
@@ -620,59 +681,120 @@ ReactDOM.render(
     document
 );
 ```
+>加入action,创建action文件夹，文件夹里创建indexAction.js、aboutAction.js
+```js
+// action/indexAction.js
+import request from '../utils';
+import * as types from '../contants';
+
+export const getDan = () => {
+    return (dispatch, getState) => {
+        dispatch({
+            type: types.GET_DAN_INFO
+        })
+        // https://api.github.com/users/tj
+        return request('https://api.github.com/users/gaearon').then(res => {
+            console.log(res);
+            dispatch({
+                type: types.GET_DAN_INFO_SUCCESS,
+                payload: res
+            })
+        }).catch(error => {
+            dispatch({
+                type: types.GET_DAN_INFO_FAILED,
+                payload: error
+            })
+        })
+    }
+}
+```
+```js
+// action/aboutAction/js
+import request from '../utils';
+import * as types from '../contants';
+
+export const getTJ = () => {
+    return (dispatch, getState) => {
+        dispatch({
+            type: types.GET_TJ_INFO
+        })
+        return request('https://api.github.com/users/tj').then(res => {
+            console.log(res);
+            dispatch({
+                type: types.GET_TJ_INFO_SUCCESS,
+                payload: res
+            })
+        }).catch(error => {
+            dispatch({
+                type: types.GET_TJ_INFO_FAILED,
+                payload: error
+            })
+        })
+    }
+}
+```
 >容器组件（Index, About）里面调用redux的数据，修改Index、About;
 ```js
 // Index.js
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
+import {
+    getDan
+} from '../action/indexAction';
 
 class Index extends Component {
     componentDidMount () {
         console.log('调用 Index 组件!', this.props);
+        const { getDan } = this.props;
+        getDan();
     }
     render () {
         const {data: { title, list }} = this.props;
         return (
             <div>
                 <div>Current: <strong>{title}</strong></div>
-                <ul>
-                    {
-                        list.map((item, index) => {
-                            return <li>item</li>
-                        })
-                    }
-                </ul>
+                {
+                    list.avatar_url ? (<div>
+                        <img src={list.avatar_url} />
+                    </div>) : null
+                }
             </div>
         )
     }
 }
+
 export default connect(
     state => {
         return { data: state.index }
+    },
+    {
+        getDan
     }
 )(Index);
 ```
 ```js
 // About.js
+// About.js
 import React, {Component} from 'react';
 import { connect } from 'react-redux';
+import { getTJ } from '../action/aboutAction';
 
 class About extends Component {
     componentDidMount () {
         console.log('调用 About 组件!', this.props);
+        const { getTJ } = this.props;
+        getTJ();
     }
     render () {
         const {data: { title, list }} = this.props;
         return (
             <div>
                 <div>Current: <strong>{title}</strong></div>
-                <ul>
-                    {
-                        list.map((item, index) => {
-                            return <li>item</li>
-                        })
-                    }
-                </ul>
+                {
+                    list.avatar_url ? (<div>
+                        <img src={list.avatar_url} />
+                    </div>) : null
+                }
             </div>
         )
     }
@@ -680,6 +802,9 @@ class About extends Component {
 export default connect(
     state => {
         return { data: state.about }
+    },
+    {
+        getTJ
     }
 )(About);
 ```
@@ -690,3 +815,5 @@ export default connect(
 </p>
 
 >到这一步，`tep3: redux 的同构#1` 算是完成，这一篇虽然内容繁杂，相对于非同构的react，也就是在后端引了一下redux而已，其他的也跟正常的一样调用redux，可以说是没什么`技术含量`；但对于基础薄弱的人来说，这一步还是有很多可以借鉴的地方的 - -！
+## Step3: redux 的同构#2
+* '噔噔噔噔' 配了那么多，终于最主要的时刻了————进入到页面时，已经异步获取到数据了！也就是前面说的,

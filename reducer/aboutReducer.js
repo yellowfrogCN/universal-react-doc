@@ -1,12 +1,24 @@
 // reducer/aboutReducer.js
+import * as types from '../contants';
 function aboutReducer (
     state = {
-        title: 'i_am_AboutComponent',
-        list: []
+        title: '编程界的杀马特、设计技术远超陈冠希的TJ大神',
+        list: {}
     },
     action
 ) {
-    return state;
+    switch (action.type) {
+        case types.GET_TJ_INFO_SUCCESS:
+            return Object.assign({}, state, {
+                list: action.payload
+            })
+        case types.GET_TJ_INFO_FAILED:
+            return Object.assign({}, state, {
+                list: {}
+            }) 
+        default:
+            return state;
+    }
 }
 
 export default aboutReducer;
