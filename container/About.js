@@ -17,7 +17,7 @@ class About extends Component {
                 {
                     list.avatar_url ? (<div>
                         <img src={list.avatar_url} />
-                    </div>) : null
+                    </div>) : <div>loading</div>
                 }
             </div>
         )
