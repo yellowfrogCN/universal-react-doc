@@ -491,7 +491,202 @@ console.log('renderProps');
 * 到这里，Step2：react-router的同构算是基本完成，后续会在此基础上加上动态路由等，但接下来的Step3,重点是 redux 的同构方案！
 
 ## Step3: redux 的同构#1
-><font color=red>redux的同构，这边分成两步<br />
+><font color=red>redux的同构，这边分成两步</font><br />
 >第一步先把redux集成进同构中<br />
->第二步再在第一部的基础上，考虑在前端`接管页面`时，同时拿到页面的数据！也就是本页的异步请求，发生在服务端</font>
+>第二步再在第一部的基础上，考虑在前端`接管页面`时，同时拿到页面的数据！也就是本页的异步请求，发生在服务端
 
+* 安装依赖
+>yarn add redux redux-logger redux-thunk react-redux 或者 npm install redux redux-logger redux-thunk react-redux --save
+
+>新建文件夹redux,在redux文件夹里建立configureStore.js与index.js<br />
+
+```js
+// configureStore.js
+import { createStore, applyMiddleware } from 'redux';
+import thunkMiddleware from 'redux-thunk';
+import rootReducer from '../reducer';
+import { createLogger } from 'redux-logger';
+
+const logger = createLogger({
+  collapsed: false
+})
+
+const createStoreWithMiddleware = applyMiddleware(
+  logger,
+  thunkMiddleware,
+)(createStore);
+
+const initReduxDevTool = (typeof window === 'object' && typeof window.devToolsExtension !== 'undefined') ? window.devToolsExtension() : f => f;
+
+export default function configureStore(initialState) {
+  const store = createStoreWithMiddleware(
+    rootReducer,
+    initialState,
+    initReduxDevTool
+  );
+
+  return store;
+}
+
+```
+
+```js
+// redux/configureStore.js
+import configureStore from './configureStore.dev';
+export default configureStore;
+```
+>新建文件夹 reducer,在 reducer 文件夹里分别建立 index.js aboutReducer.js（对应About组件的数据） indexReducer.js（对应Index组件的数据）<br />
+
+```js
+// reducer/indexReducer.js
+function indexReducer (
+    state = {
+        title: 'i_am_IndexComponent',
+        list: []
+    },
+    action
+) {
+    return state;
+}
+
+export default indexReducer;
+```
+```js
+// reducer/aboutReducer.js
+function aboutReducer (
+    state = {
+        title: 'i_am_AboutComponent',
+        list: []
+    },
+    action
+) {
+    return state;
+}
+
+export default aboutReducer;
+```
+```js
+// reducer/index.js
+import { combineReducers } from 'redux';
+import index from './indexReducer';
+import about from './aboutReducer';
+
+export default combineReducers({
+    index,
+    about
+})
+```
+>routes/index.js 引入redux配置（后端引入redux）
+```js
+// routes/index.js
+// ...
+import { Provider } from 'react-redux';
+import configureStore from '../redux';
+
+const store = configureStore();
+// ...
+// const html = renderToString(
+//     <RouterContext
+//         {...renderProps}
+//     />
+// )
+const html = renderToString(
+    <Provider store={store} >
+        <RouterContext
+            {...renderProps}
+        />
+    </Provider>
+)
+// ...
+```
+>Entry.js 引入redux（前端引入redux）
+```js
+// Entry.js
+import React from 'react';
+import ReactDOM from 'react-dom';
+// import Root from './Root';
+import routes from './routes/configureRoute';
+
+import { Provider } from 'react-redux';
+import configureStore from './redux';
+const store = configureStore();
+
+ReactDOM.render(
+    <Provider store={store}>
+        {routes}
+    </Provider>,
+    // React.createElement(Root),
+    // document 可以理解为浏览器
+    document
+);
+```
+>容器组件（Index, About）里面调用redux的数据，修改Index、About;
+```js
+// Index.js
+import React, {Component} from 'react';
+import { connect } from 'react-redux';
+
+class Index extends Component {
+    componentDidMount () {
+        console.log('调用 Index 组件!', this.props);
+    }
+    render () {
+        const {data: { title, list }} = this.props;
+        return (
+            <div>
+                <div>Current: <strong>{title}</strong></div>
+                <ul>
+                    {
+                        list.map((item, index) => {
+                            return <li>item</li>
+                        })
+                    }
+                </ul>
+            </div>
+        )
+    }
+}
+export default connect(
+    state => {
+        return { data: state.index }
+    }
+)(Index);
+```
+```js
+// About.js
+import React, {Component} from 'react';
+import { connect } from 'react-redux';
+
+class About extends Component {
+    componentDidMount () {
+        console.log('调用 About 组件!', this.props);
+    }
+    render () {
+        const {data: { title, list }} = this.props;
+        return (
+            <div>
+                <div>Current: <strong>{title}</strong></div>
+                <ul>
+                    {
+                        list.map((item, index) => {
+                            return <li>item</li>
+                        })
+                    }
+                </ul>
+            </div>
+        )
+    }
+}
+export default connect(
+    state => {
+        return { data: state.about }
+    }
+)(About);
+```
+* npm start 打开网页 http://localhost:3001/;
+* 利用[react插件(需翻墙)](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?utm_source=chrome-app-launcher-info-dialog)查看到，redux 集成进 react、react-router了
+<p align="center">
+    <img src="./image/step3-1-redux.png" alt="redux" width="100%">
+</p>
+
+>到这一步，`tep3: redux 的同构#1` 算是完成，这一篇虽然内容繁杂，相对于非同构的react，也就是在后端引了一下redux而已，其他的也跟正常的一样调用redux，可以说是没什么`技术含量`；但对于基础薄弱的人来说，这一步还是有很多可以借鉴的地方的 - -！

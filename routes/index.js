@@ -9,6 +9,10 @@ import {
     match, RouterContext
 } from 'react-router';
 import routes from './configureRoute';
+import { Provider } from 'react-redux';
+import configureStore from '../redux';
+
+const store = configureStore();
 const router = express.Router();
 
 
@@ -28,10 +32,11 @@ router.get('*', function (req, res) {
                 // below, if you're using a catch-all route.
                 console.log('renderProps');
                 const html = renderToString(
-                    <RouterContext
-                        {...renderProps}
-
-                    />
+                    <Provider store={store} >
+                        <RouterContext
+                            {...renderProps}
+                        />
+                    </Provider>
                 )
                 res.status(200).send(html)
             } else {
