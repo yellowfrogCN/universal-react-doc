@@ -7,7 +7,7 @@
 * [universal-react-tutorial-video(需要翻墙)](https://www.youtube.com/watch?v=k66bOHX8MnY&list=PLVgOtoUBG2md5HxaABCcnfstF88CPzUeD&index=1)
 * 脚手架
 * [universal-react-tutorial(推荐，蛮多思路借鉴于这个)](https://github.com/remarkablemark/universal-react-tutorial)
-* [react-redux-universal-hot-example(一万多star，但基本没怎么参考)](https://github.com/erikras/react-redux-universal-hot-example)
+* [react-redux-universal-hot-example(一万多star)](https://github.com/erikras/react-redux-universal-hot-example)
 * [universal-react（服务端异步加载数据的思路借鉴于此）](https://github.com/DominicTobias/universal-react)
 * [基于KOA2、react-router @4 的一个脚手架](https://github.com/kimjuny/koa-react-universal)
 

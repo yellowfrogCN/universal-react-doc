@@ -4,18 +4,20 @@ import { connect } from 'react-redux';
 import {
     getDan
 } from '../action/indexAction';
+import Helmet from 'react-helmet';
 
 class Index extends Component {
 
-    static readyOnActions(dispatch) {
+    static readyOnActions(props) {
+        console.log(11, this)
         return Promise.all([
-            getDan()
+            props.dispatch(getDan())
         ]);
     } 
     componentDidMount () {
         console.log('调用 Index 组件!', this.props);
-        const { getDan } = this.props;
-        getDan();
+        // const { getDan } = this.props;
+        Index.readyOnActions(this.props)
     }
     render () {
         const {data: { title, list }} = this.props;
@@ -36,7 +38,7 @@ export default connect(
     state => {
         return { data: state.index }
     },
-    {
-        getDan
-    }
+    // {
+    //     getDan
+    // }
 )(Index);

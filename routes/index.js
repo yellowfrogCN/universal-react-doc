@@ -15,6 +15,36 @@ import configureStore from '../redux';
 const store = configureStore();
 const router = express.Router();
 
+function routeIsUnmatched(renderProps) {
+    return renderProps.routes[renderProps.routes.length - 1].path === '*';
+}
+
+function handleRoute(res, renderProps) {
+    // const store = configureStore();
+    const status = routeIsUnmatched(renderProps) ? 404 : 200;
+    return res.status(status).send(renderProps)
+    const readyOnAllActions = renderProps.components
+      .filter(component => {
+          console.log(component.readyOnActions)
+          return component.readyOnActions !== undefined
+      })
+      .map(component => component.readyOnActions(store.dispatch, renderProps.params));
+  
+    Promise
+      .all(readyOnAllActions)
+    //   .then(() => res.status(status).send(renderComponentWithRoot(RouterContext, renderProps, store)));
+      .then(() => {
+        console.log('renderProps');
+        const html = renderToString(
+            <Provider store={store} >
+                <RouterContext
+                    {...renderProps}
+                />
+            </Provider>
+        )
+        return res.status(status).send(html)
+      });
+}
 
 router.get('*', function (req, res) {
     // Note that req.url here should be the full URL path from
@@ -30,15 +60,7 @@ router.get('*', function (req, res) {
                 // You can also check renderProps.components or renderProps.routes for
                 // your "not found" component or route respectively, and send a 404 as
                 // below, if you're using a catch-all route.
-                console.log('renderProps');
-                const html = renderToString(
-                    <Provider store={store} >
-                        <RouterContext
-                            {...renderProps}
-                        />
-                    </Provider>
-                )
-                res.status(200).send(html)
+                handleRoute(res, renderProps)
             } else {
                 res.status(404).send('Not found')
             }
