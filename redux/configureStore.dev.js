@@ -13,7 +13,10 @@ const composeEnhancers = composeWithDevTools({
   // 后续如需配置参数，可在这里配置
 });
 
-const middleware = [thunkMiddleware, logger];
+const middleware = [
+    thunkMiddleware,
+    logger
+];
 
 const configureStore = (preloadedState = {}) => {
     const store = createStore(

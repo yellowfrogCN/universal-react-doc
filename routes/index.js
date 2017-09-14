@@ -12,7 +12,6 @@ import routes from './configureRoute';
 import { Provider } from 'react-redux';
 import configureStore from '../redux';
 
-const store = configureStore();
 const router = express.Router();
 
 function routeIsUnmatched(renderProps) {
@@ -20,21 +19,21 @@ function routeIsUnmatched(renderProps) {
 }
 
 function handleRoute(res, renderProps) {
-    // const store = configureStore();
+    const store = configureStore();
     const status = routeIsUnmatched(renderProps) ? 404 : 200;
-    return res.status(status).send(renderProps)
+    // return res.status(status).send(renderProps.components)
+    // console.log(renderProps.components)
     const readyOnAllActions = renderProps.components
       .filter(component => {
-          console.log(component.readyOnActions)
-          return component.readyOnActions !== undefined
+        //   console.log(component.readyOnActions)
+          return component && component.readyOnActions
       })
       .map(component => component.readyOnActions(store.dispatch, renderProps.params));
-  
+
     Promise
       .all(readyOnAllActions)
     //   .then(() => res.status(status).send(renderComponentWithRoot(RouterContext, renderProps, store)));
       .then(() => {
-        console.log('renderProps');
         const html = renderToString(
             <Provider store={store} >
                 <RouterContext

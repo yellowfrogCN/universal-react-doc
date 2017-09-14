@@ -4,10 +4,15 @@ import { connect } from 'react-redux';
 import { getTJ } from '../action/aboutAction';
 
 class About extends Component {
+    static readyOnActions(dispatch) {
+        return Promise.all([
+            dispatch(getTJ())
+        ]);
+    } 
     componentDidMount () {
         console.log('调用 About 组件!', this.props);
-        const { getTJ } = this.props;
-        getTJ();
+        const { dispatch } = this.props;
+        About.readyOnActions(dispatch)
     }
     render () {
         const {data: { title, list }} = this.props;
@@ -27,7 +32,7 @@ export default connect(
     state => {
         return { data: state.about }
     },
-    {
-        getTJ
-    }
+    // {
+    //     getTJ
+    // }
 )(About);
