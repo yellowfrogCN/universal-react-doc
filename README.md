@@ -811,7 +811,7 @@ export default connect(
 * npm start 打开网页 http://localhost:3001/;
 * 利用[react插件(需翻墙)](https://chrome.google.com/webstore/detail/react-developer-tools/fmkadmapgofadopljbjfkapdkoienihi?utm_source=chrome-app-launcher-info-dialog)查看到，redux 集成进 react、react-router了
 <p align="center">
-    <img src="./image/step3-1-redux.png" alt="redux" width="100%">
+    <img src="./image/step3-1dan.png" alt="redux" width="100%">
 </p>
 
 >到这一步，`tep3: redux 的同构#1` 算是完成，这一篇虽然内容繁杂，相对于非同构的react，也就是在后端引了一下redux而已，其他的也跟正常的一样调用redux，可以说是没什么`技术含量`；但对于基础薄弱的人来说，这一步还是有很多可以借鉴的地方的 - -！
