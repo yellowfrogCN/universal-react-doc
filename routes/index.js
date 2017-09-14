@@ -20,7 +20,7 @@ function routeIsUnmatched(renderProps) {
 }
 
 function handleRoute(res, renderProps) {
-    // const store = configureStore();
+    // const store = configureStore(window.PROPS);
     const status = routeIsUnmatched(renderProps) ? 404 : 200;
     const readyOnAllActions = renderProps.components
       .filter(component => {

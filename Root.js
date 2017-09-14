@@ -1,6 +1,7 @@
 // Root.js
 // const React = require('react');
 import React from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router';
 
 class Root extends React.Component {
@@ -18,6 +19,7 @@ class Root extends React.Component {
         alert('yf超帅的！');
     }
     render() {
+        const { custom } = this.props;
         return (<html>
                 <head>
                     <title>Universal React</title>
@@ -40,6 +42,9 @@ class Root extends React.Component {
                     因为会渲染成react的格式，所以<script></script>可以写成<script />,
                     注意路径 
                     */}
+                    <script dangerouslySetInnerHTML={{
+                        __html: 'window.PROPS=' + JSON.stringify(custom)
+                    }} />
                     <script src='/bundle.js' />
                 </body>
             </html>);
@@ -47,4 +52,8 @@ class Root extends React.Component {
 }
 
 // module.exports = Root;
-export default Root;
+export default connect(state => {
+    return {
+        custom: state
+    }
+})(Root);
