@@ -499,7 +499,7 @@ console.log('renderProps');
 
 * 安装依赖
 * 小插曲，相信大家不断的npm start 已经烦死了吧！这边先用一个简单实用的方式来长时间启动服务器！
->yarn add npm-run-all nodemon --dev 或者 npm install npm-run-all npm --save-dev
+>yarn add npm-run-all nodemon --dev 或者 npm install npm-run-all nodemon --save-dev
 >然后修改我们的 package.json 里的 srcipts
 ```js
 "scripts": {

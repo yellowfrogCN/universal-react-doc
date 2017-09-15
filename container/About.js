@@ -12,7 +12,7 @@ class About extends Component {
     componentDidMount () {
         console.log('调用 About 组件!', this.props);
         const { dispatch } = this.props;
-        About.readyOnActions(dispatch)
+        About.readyOnActions(dispatch);
     }
     render () {
         const {data: { title, list }} = this.props;

@@ -6,7 +6,8 @@ import routes from './routes/configureRoute';
 
 import { Provider } from 'react-redux';
 import configureStore from './redux';
-const store = configureStore();
+
+const store = configureStore(window.PROPS);
 
 ReactDOM.render(
     <Provider store={store}>
