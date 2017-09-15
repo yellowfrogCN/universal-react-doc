@@ -10,13 +10,21 @@ function indexReducer (
 ) {
     switch (action.type) {
         case types.GET_DAN_INFO_SUCCESS:
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 list: action.payload
-            })
+            }
+            // return Object.assign({}, state, {
+            //     list: action.payload
+            // })
         case types.GET_DAN_INFO_FAILED:
-            return Object.assign({}, state, {
+            return {
+                ...state,
                 list: {}
-            }) 
+            }
+            // return Object.assign({}, state, {
+            //     list: {}
+            // }) 
         default:
             return state;
     }

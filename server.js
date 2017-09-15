@@ -1,7 +1,8 @@
 // server.js
 require('babel-register')({
-    presets: ['react', 'es2015']
+    presets: ['react', 'es2015', 'stage-0']
 });
+
 const express = require('express');
 const Server = express();
 // 托管静态文件

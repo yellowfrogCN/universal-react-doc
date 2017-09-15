@@ -967,7 +967,43 @@ static readyOnActions(dispatch) {
 
 * 到这里，react的同构算是基本完成了，这里面包括了与 router、redux、以及 服务端异步请求 等 技术的融合；后续有机会的话，进行下面的技术深化
 
-* 开发环境的热更新，提高开发体验；
+* 开发环境的热更新，提升开发体验；
 * 生产环境与开发环境的分离与完善(目前的webpack就是个'hello world');
 * React-Router @3 || @4 的动态加载
 * 部署方式优化
+
+## Step4： 提升开发体验
+
+* 提高ES6的使用范围
+>Redux官方是推荐是在Reducer里面改变state的引用的，改变引用的方法有很多，常用的有Object.assign（浅拷贝）、ES6的Rest语法（浅拷贝）、Immutable等等等，这里我们把Object.assign换成Rest语法；
+```js
+return {
+    ...state,
+    list: action.payload
+}
+// return Object.assign({}, state, {
+//     list: action.payload
+// })
+```
+>发现后端控制台报错了
+<p align="center">
+    <img src="./image/step4_rest_error.png" alt="step4_error" width="100%">
+</p>
+
+>那是因为目前的babel-preset-es2015还不支持到ES6的Rest语法(有异议...),需要安装babel-preset-stage-0<br />
+>yarn add babel-preset-stage-0 或者 npm install babel-preset-stage-0 --save<br />
+>然后在 webpack.config.js 与 server.js 里面加入'stage-0'即可；<br />
+>因为是同构，服务端与前端运行一套，所以经常需要在服务端也配置一样的东西！
+```js
+// webpack.config.js
+query: {
+    presets: ['react', 'es2015', 'stage-0']
+}
+
+// server.js
+require('babel-register')({
+    presets: ['react', 'es2015', 'stage-0']
+});
+```
+>npm start 重启 一下就可以正常使用Rest语法了<br />
+* 同理,后续想继续使用ES6的新语法或者ES7的实验性语法，都可以通过stage1、2、3、last等去配置即可，不过不推荐一下子噼里啪啦全上，最好根据项目实际需求
