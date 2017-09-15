@@ -29,7 +29,7 @@ function handleRoute(res, renderProps) {
       .map(component => component.readyOnActions(store.dispatch, renderProps.params));
     
     // 调用 readyOnAllActions, 完成后在then里面渲染html（服务端）
-    console.log(31, readyOnAllActions);
+    // console.log(31, readyOnAllActions);
     Promise
       .all(readyOnAllActions)
       .then(() => {

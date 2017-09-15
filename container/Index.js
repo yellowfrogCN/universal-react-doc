@@ -27,6 +27,7 @@ class Index extends Component {
         const {data: { title, list }} = this.props;
         return (
             <div>
+                <div>222</div>
                 <div>Current: <strong>{title}</strong></div>
                 {
                     list.avatar_url ? (<div>

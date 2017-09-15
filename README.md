@@ -974,7 +974,7 @@ static readyOnActions(dispatch) {
 
 ## Step4： 提升开发体验
 
-* 提高ES6的使用范围
+### 提高ES6的使用范围
 >Redux官方是推荐是在Reducer里面改变state的引用的，改变引用的方法有很多，常用的有Object.assign（浅拷贝）、ES6的Rest语法（浅拷贝）、Immutable等等等，这里我们把Object.assign换成Rest语法；
 ```js
 return {
@@ -1005,5 +1005,10 @@ require('babel-register')({
     presets: ['react', 'es2015', 'stage-0']
 });
 ```
->npm start 重启 一下就可以正常使用Rest语法了<br />
+>npm start 重启(修改webpack配置最好重启一下) 一下就可以正常使用Rest语法了<br />
 * 同理,后续想继续使用ES6的新语法或者ES7的实验性语法，都可以通过stage1、2、3、last等去配置即可，不过不推荐一下子噼里啪啦全上，最好根据项目实际需求
+- [babel官网](http://babeljs.io/)
+
+### 
+
+
