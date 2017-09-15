@@ -12,6 +12,7 @@ import routes from './configureRoute';
 import { Provider } from 'react-redux';
 import configureStore from '../redux';
 
+const store = configureStore();
 const router = express.Router();
 
 function routeIsUnmatched(renderProps) {
