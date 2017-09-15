@@ -18,20 +18,20 @@ const router = express.Router();
 function routeIsUnmatched(renderProps) {
     return renderProps.routes[renderProps.routes.length - 1].path === '*';
 }
-
+// 核心方法
 function handleRoute(res, renderProps) {
-    // const store = configureStore(window.PROPS);
     const status = routeIsUnmatched(renderProps) ? 404 : 200;
+    // 找寻组件中是否存在 readyOnActions 这个静态方法，如果存在，则返回出来给Promise.ALL调用
     const readyOnAllActions = renderProps.components
       .filter(component => {
           return component && component.readyOnActions
-        //   return component.readyOnActions
       })
       .map(component => component.readyOnActions(store.dispatch, renderProps.params));
-
+    
+    // 调用 readyOnAllActions, 完成后在then里面渲染html（服务端）
+    console.log(31, readyOnAllActions);
     Promise
       .all(readyOnAllActions)
-    //   .then(() => res.status(status).send(renderComponentWithRoot(RouterContext, renderProps, store)));
       .then(() => {
         const html = renderToString(
             <Provider store={store} >
@@ -55,9 +55,7 @@ router.get('*', function (req, res) {
             } else if (redirectLocation) {
                 res.redirect(302, redirectLocation.pathname + redirectLocation.search)
             } else if (renderProps) {
-                // You can also check renderProps.components or renderProps.routes for
-                // your "not found" component or route respectively, and send a 404 as
-                // below, if you're using a catch-all route.
+                // 核心方法
                 handleRoute(res, renderProps)
             } else {
                 res.status(404).send('Not found')

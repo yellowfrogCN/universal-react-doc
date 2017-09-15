@@ -11,7 +11,7 @@
 * [universal-react（服务端异步加载数据的思路借鉴于此）](https://github.com/DominicTobias/universal-react)
 * [基于KOA2、react-router @4 的一个脚手架](https://github.com/kimjuny/koa-react-universal)
 
-* 依赖需求
+* 主要依赖需求(后续完善...)
 - [nodeJs @8+](http://nodejs.cn/)
 - [expressJs @4+](http://www.expressjs.com.cn/) `最好全局安装下`
 - react 15+
@@ -21,6 +21,13 @@
 - babel-register
 - babel-loader
 - [webpack @2+](https://doc.webpack-china.org/)
+- [react-router @3](https://github.com/ReactTraining/react-router/tree/v3/docs)
+- redux
+- react-redux
+- redux-thunk 
+- redux-logger
+- [nodemon](https://github.com/remy/nodemon) node服务器的升级版
+- [npm-run-all](https://github.com/mysticatea/npm-run-all) 可以同时起多个服务
 
 ## Step1: 利用 NodeJs + Express 搭建入门级的react同构
 >Express 是为了更方便的搭建HTTP服务器
@@ -508,7 +515,7 @@ console.log('renderProps');
     "watch:server": "nodemon --ext js,jsx --ignore public/ server.js"
 },
 ```
->以后只需要npm start 就可以修改代码，然后 F5 刷新即可！（热更新后续加入）
+>以后只需要npm start 然后 F5 刷新就可以修改代码！（热更新后续加入）
 * 加入redux
 >yarn add redux redux-logger redux-thunk react-redux [redux-devtools-extension](https://github.com/yellowfrogCN/reduxDevTools) 或者 npm install redux redux-logger redux-thunk react-redux [redux-devtools-extension](https://github.com/yellowfrogCN/reduxDevTools) --save
 
@@ -815,5 +822,152 @@ export default connect(
 </p>
 
 >到这一步，`tep3: redux 的同构#1` 算是完成，这一篇虽然内容繁杂，相对于非同构的react，也就是在后端引了一下redux而已，其他的也跟正常的一样调用redux，可以说是没什么`技术含量`；但对于基础薄弱的人来说，这一步还是有很多可以借鉴的地方的 - -！
-## Step3: redux 的同构#2
-* '噔噔噔噔' 配了那么多，终于最主要的时刻了————进入到页面时，已经异步获取到数据了！也就是前面说的,
+## Step3: redux 的同构#2 ---- 服务端获取当页的异步数据
+* 所谓`同构首页`, 并不是是指第一张页面, 有可能你直接输入网址的页面, 也可以理解为`首页`;
+* 那么如何要在 `首页` html加载出来时，就已经加载好异步数据？且同构时，前端与后端的redux如何保持一致?带着问题来看一下吧！
+>根据[redux官方文档推荐思路（当页最底下）](http://cn.redux.js.org/docs/recipes/ServerRendering.html), 我们可以在每个容器组件写上一个静态方法, 然后再在route的match的回调函数的第三个参数(renderProps)里面，找到当前加载页的的Components,最后在Components里面去寻找刚才添加的静态方法, 找到静态方法后, 调用它，调用结束后 => 存进redux => 再渲染页面！<br />
+>分别给容器组件 Index.js About.js 添加 静态方法
+```js
+// Index.js
+// ...
+static readyOnActions(dispatch) {
+    return Promise.all([
+        // 你可以用mapDispatchToProps也行
+        // 直接用dispatch调用也行
+        dispatch(getDan())
+    ]);
+}
+// ...
+```
+```js
+// About.js
+// ...
+static readyOnActions(dispatch) {
+    return Promise.all([
+        // 你可以用mapDispatchToProps也行
+        // 直接用dispatch调用也行
+        dispatch(getTJ())
+    ]);
+}
+// ...
+```
+>修改 router/index.js `让页面在加载前已经获取到异步数据`
+```js
+// router/index.js
+// ...
+
+// 核心方法
+function handleRoute(res, renderProps) {
+    const status = routeIsUnmatched(renderProps) ? 404 : 200;
+    // 找寻组件中是否存在 readyOnActions 这个静态方法，如果存在，则返回出来给Promise.ALL调用
+    const readyOnAllActions = renderProps.components
+      .filter(component => {
+          return component && component.readyOnActions
+      })
+      .map(component => component.readyOnActions(store.dispatch, renderProps.params));
+    
+    // 调用 readyOnAllActions, 完成后在then里面渲染html（服务端）
+    console.log(31, readyOnAllActions);
+    Promise
+      .all(readyOnAllActions)
+      .then(() => {
+        const html = renderToString(
+            <Provider store={store} >
+                <RouterContext
+                    {...renderProps}
+                />
+            </Provider>
+        )
+        return res.status(status).send(html)
+      });
+}
+// ...
+else if (renderProps) {
+    // 核心方法
+    handleRoute(res, renderProps)
+}
+// ...
+```
+>现在我们`刷新 http://localhost:3001/`看下能否实现服务端加载数据<br />
+>页面正常，但是前端控制台报错了
+<p align="center">
+    <img src="./image/step3_error.png" alt="后台报错" width="100%">
+</p>
+
+### 通过错误提示，可以看到，是前后端在同构时数据不匹配造成的！
+* 后端：是在加载数据后渲染html, redux是存在异步加载的数据的
+* 前端: 我们看下，是在`不知道后端加载数据`的情况下，渲染页面的
+```js
+// Entry.js
+// ...
+const store = configureStore();
+<Provider store={store}>
+// ...
+```
+* 所以, 这是数据不一致时造成的，用张图表示就是
+<p align="center">
+    <img src="./image/step3_buyizhi.png" alt="数据不一致" width="100%">
+</p>
+
+* 那么，如何才能保持在同构时的数据一致呢? 以下是一种思路常用的思路（存在）
+* 1、Root.js通过connect获取到state数据
+* 2、通过 dangerouslySetInnerHTML 注入进react
+* 3、前端渲染的时候，利用redux`万年用不着的`createStore的第二个参数，来保证同构时数据一致
+```js
+// Root.js
+// ...
+<script dangerouslySetInnerHTML={{
+    __html: 'window.PROPS=' + JSON.stringify(this.props.custom)
+}} />
+// module.exports = Root;
+export default connect(state => {
+    return {
+        custom: state
+    }
+})(Root);
+```
+```js
+// Entry.js
+// 保证前后端同构时数据一致
+const store = configureStore(window.PROPS);
+```
+>刷新 http://localhost:3001/ 看到 console.log的错误消失了， 通过Elements可以看到redux里的数据注入近了html;
+<p align="center">
+    <img src="./image/step3_dangerouslySetInnerHTML.png" alt="数据不一致" width="100%">
+</p>
+
+>为了更好的验证服务端渲染，我们把容器组件里的 Index.js About.js 里 的 componentDidMount 异步请求去掉，静态方法里面各自添加全部异步请求, 也就是说，`前端不进行任何异步请求`，看下还能否看到 Dan大神与TJ杀马特的靓照!<br />
+
+>Index.js 与 About.js 都加入下面的代码 
+```js
+// ...
+import { getDan } from '../action/indexAction';
+import { getTJ } from '../action/aboutAction.js';
+static readyOnActions(dispatch) {
+    return Promise.all([
+        // 你可以用mapDispatchToProps也行
+        // 直接用dispatch调用也行
+        dispatch(getDan()),
+        dispatch(getTJ())
+    ]);
+} 
+// ...
+```
+>分别注释掉 componentDidMount 里的异步请求
+```js
+// Index.readyOnActions(dispatch)
+// About.readyOnActions(dispatch);
+```
+>最后再查看 刷新 http://localhost:3001/, 通过 Network 可以验证，没有任何异步请求的请求的情况下，照样可以看到 Dan大神与TJ杀马特 - -。V
+<p align="center">
+    <img src="./image/step3_Network.png" alt="数据不一致" width="100%">
+</p>
+
+>虽然我并不知道XSS攻击是什么鬼，但是 dangerouslySetInnerHTML 注入进html的方式会带来这方面的安全隐患，关于这方面的知识，日后后后....有机会再去细究深化
+
+* 到这里，react的同构算是基本完成了，这里面包括了与 router、redux、以及 服务端异步请求 等 技术的融合；后续有机会的话，进行下面的技术深化
+
+* 开发环境的热更新，提高开发体验；
+* 生产环境与开发环境的分离与完善(目前的webpack就是个'hello world');
+* React-Router @3 || @4 的动态加载
+* 部署方式优化
