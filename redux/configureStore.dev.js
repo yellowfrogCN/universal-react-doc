@@ -15,7 +15,7 @@ const composeEnhancers = composeWithDevTools({
 
 const middleware = [
     thunkMiddleware,
-    // logger
+    logger
 ];
 
 const configureStore = (preloadedState = {}) => {
