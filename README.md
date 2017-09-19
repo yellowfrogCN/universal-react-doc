@@ -3,10 +3,17 @@
 >下载项目
 * git clone https://github.com/yellowfrogCN/universal-react-doc.git
 >安装<br />
->yarn install 或者 npm install<br />
+* yarn install 或者 npm install<br />
 >运行<br />
->yarn start 或者 npm start <br />
->打开网页 http://localhost:3001/
+* yarn start 或者 npm start <br />
+>打开网页<br />
+* http://localhost:3001/
+
+## 实现思路
+- [Step1: 利用 NodeJs + Express 搭建入门级的react同构](#step1)
+- [Step2: 前端路由在同构中的应用](#step2)
+- [Step3: redux 的同构#1](#step3)
+- [Step4: redux 的同构#2 ---- 服务端获取当页的异步数据](#step4)
 
 ## 参考
 * 文本类
@@ -38,7 +45,7 @@
 - [nodemon](https://github.com/remy/nodemon) node服务器的升级版
 - [npm-run-all](https://github.com/mysticatea/npm-run-all) 可以同时起多个服务
 
-## Step1: 利用 NodeJs + Express 搭建入门级的react同构
+## <span id="step1">Step1: 利用 NodeJs + Express 搭建入门级的react同构</span>
 >Express 是为了更方便的搭建HTTP服务器
 
 
@@ -296,7 +303,7 @@ const Root = require('./Root.js').default;
 
 * 到这里 Step1 入门级的同构完成，但离实际开发还有很大一段距离，接下来的 Step2 会是`前端路由`在同构中的应用
 
-## Step2: 前端路由在同构中的应用
+## <span id="step2">Step2: 前端路由在同构中的应用</span>
 >react社区的路由框架有好几种，其中最有名的就是react-router了！本次也是在react-router @3 版本基础上进行同构;
 - 依赖需求
 - [react-router @3](https://github.com/ReactTraining/react-router/tree/v3/docs)
@@ -508,7 +515,7 @@ console.log('renderProps');
 
 * 到这里，Step2：react-router的同构算是基本完成，后续会在此基础上加上动态路由等，但接下来的Step3,重点是 redux 的同构方案！
 
-## Step3: redux 的同构#1
+## <span id="step3">Step3: redux 的同构#1</span>
 ><font color=red>redux的同构，这边分成两步</font><br />
 >第一步先把redux集成进同构中<br />
 >第二步再在第一部的基础上，考虑在前端`接管页面`时，同时拿到页面的数据！也就是本页的异步请求，发生在服务端
@@ -831,7 +838,7 @@ export default connect(
 </p>
 
 >到这一步，`tep3: redux 的同构#1` 算是完成，这一篇虽然内容繁杂，相对于非同构的react，也就是在后端引了一下redux而已，其他的也跟正常的一样调用redux，可以说是没什么`技术含量`；但对于基础薄弱的人来说，这一步还是有很多可以借鉴的地方的 - -！
-## Step3: redux 的同构#2 ---- 服务端获取当页的异步数据
+## <span id="step4">Step4: redux 的同构#2 ---- 服务端获取当页的异步数据</span>
 * 所谓`同构首页`, 并不是是指第一张页面, 有可能你直接输入网址的页面, 也可以理解为`首页`;
 * 那么如何要在 `首页` html加载出来时，就已经加载好异步数据？且同构时，前端与后端的redux如何保持一致?带着问题来看一下吧！
 >根据[redux官方文档推荐思路（当页最底下）](http://cn.redux.js.org/docs/recipes/ServerRendering.html), 我们可以在每个容器组件写上一个静态方法, 然后再在route的match的回调函数的第三个参数(renderProps)里面，找到当前加载页的的Components,最后在Components里面去寻找刚才添加的静态方法, 找到静态方法后, 调用它，调用结束后 => 存进redux => 再渲染页面！<br />
