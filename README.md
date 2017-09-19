@@ -11,7 +11,7 @@
 * http://localhost:3001/
 
 ## 实现思路
-- [Step1: 利用 NodeJs + Express 搭建入门级的react同构](#step1)
+- [Step1: 利用 NodeJs + Express 搭建入门级的react同构](#step1:利用-nodeJs-+-express-搭建入门级的react同构)
 - [Step2: 前端路由在同构中的应用](#step2)
 - [Step3: redux 的同构#1](#step3)
 - [Step4: redux 的同构#2 ---- 服务端获取当页的异步数据](#step4)
@@ -46,7 +46,7 @@
 - [nodemon](https://github.com/remy/nodemon) node服务器的升级版
 - [npm-run-all](https://github.com/mysticatea/npm-run-all) 可以同时起多个服务
 
-## <span id="step1">Step1: 利用 NodeJs + Express 搭建入门级的react同构</span>
+## Step1:利用 NodeJs + Express 搭建入门级的react同构
 >Express 是为了更方便的搭建HTTP服务器
 
 
