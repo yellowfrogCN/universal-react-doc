@@ -971,7 +971,7 @@ static readyOnActions(dispatch) {
 * 生产环境与开发环境的分离与完善(目前的webpack就是个'hello world');
 * React-Router @3 || @4 的动态加载
 * 部署方式优化
-
+<!-- 
 ## Step4： 提升开发体验
 
 ### 提高ES6的使用范围
@@ -1009,6 +1009,6 @@ require('babel-register')({
 * 同理,后续想继续使用ES6的新语法或者ES7的实验性语法，都可以通过stage1、2、3、last等去配置即可，不过不推荐一下子噼里啪啦全上，最好根据项目实际需求
 - [babel官网](http://babeljs.io/)
 
-### 
+###  -->
 
 
