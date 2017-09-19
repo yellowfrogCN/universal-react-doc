@@ -12,7 +12,7 @@
 * [基于KOA2、react-router @4 的一个脚手架](https://github.com/kimjuny/koa-react-universal)
 
 * 主要依赖需求(后续完善...)
-- [nodeJs @8+](http://nodejs.cn/)
+- [nodeJs @6+](http://nodejs.cn/)
 - [expressJs @4+](http://www.expressjs.com.cn/) `最好全局安装下`
 - react 15+
 - react-dom 15+
@@ -909,7 +909,7 @@ const store = configureStore();
     <img src="./image/step3_buyizhi.png" alt="数据不一致" width="100%">
 </p>
 
-* 那么，如何才能保持在同构时的数据一致呢? 以下是一种思路常用的思路（存在）
+* 那么，如何才能保持在同构时的数据一致呢? 以下是一种思路常用的思路
 * 1、Root.js通过connect获取到state数据
 * 2、通过 dangerouslySetInnerHTML 注入进react
 * 3、前端渲染的时候，利用redux`万年用不着的`createStore的第二个参数，来保证同构时数据一致
