@@ -1,4 +1,6 @@
-# react同构的实现思路
+# react同构的实现思路 
+### ⚠️⚠️⚠️ This Is Experimental and Incomplete! ⚠️⚠️⚠️
+* 这并不是一个可以拿来当脚手架的项目，只是为了让大家对react同构（服务端渲染）有个更加直观的认识！
 ## 参考
 * 文本类
 * [redux服务端渲染](http://cn.redux.js.org/docs/recipes/ServerRendering.html)
