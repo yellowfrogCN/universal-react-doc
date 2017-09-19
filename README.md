@@ -13,7 +13,7 @@
 * [universal-react（服务端异步加载数据的思路借鉴于此）](https://github.com/DominicTobias/universal-react)
 * [基于KOA2、react-router @4 的一个脚手架](https://github.com/kimjuny/koa-react-universal)
 
-* 主要依赖需求(后续完善...)
+* 主要依赖需求
 - [nodeJs @6+](http://nodejs.cn/)
 - [expressJs @4+](http://www.expressjs.com.cn/) `最好全局安装下`
 - react 15+
