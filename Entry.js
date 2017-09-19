@@ -7,7 +7,7 @@ import routes from './routes/configureRoute';
 import { Provider } from 'react-redux';
 import configureStore from './redux';
 
-const store = configureStore(window.PROPS);
+const store = configureStore(window.INITIAL_STATE);
 
 ReactDOM.render(
     <Provider store={store}>
@@ -15,5 +15,6 @@ ReactDOM.render(
     </Provider>,
     // React.createElement(Root),
     // document 可以理解为浏览器
-    document
+    // document
+    document.getElementById('root')
 );

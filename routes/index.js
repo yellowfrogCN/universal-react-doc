@@ -11,15 +11,25 @@ import {
 import routes from './configureRoute';
 import { Provider } from 'react-redux';
 import configureStore from '../redux';
+import HTML from '../HTML';
 
-const store = configureStore();
 const router = express.Router();
+
+function renderComponentWithRoot(html, store) {
+    const initialState = store.getState();
+    const rootMarkup = renderToString(
+        <HTML content={html} initialState={initialState} />,
+    );
+
+    return `<!doctype html>\n${rootMarkup}`;
+}
 
 function routeIsUnmatched(renderProps) {
     return renderProps.routes[renderProps.routes.length - 1].path === '*';
 }
 // 核心方法
 function handleRoute(res, renderProps) {
+    const store = configureStore();
     const status = routeIsUnmatched(renderProps) ? 404 : 200;
     // 找寻组件中是否存在 readyOnActions 这个静态方法，如果存在，则返回出来给Promise.ALL调用
     const readyOnAllActions = renderProps.components
@@ -29,7 +39,6 @@ function handleRoute(res, renderProps) {
       .map(component => component.readyOnActions(store.dispatch, renderProps.params));
     
     // 调用 readyOnAllActions, 完成后在then里面渲染html（服务端）
-    // console.log(31, readyOnAllActions);
     Promise
       .all(readyOnAllActions)
       .then(() => {
@@ -40,7 +49,11 @@ function handleRoute(res, renderProps) {
                 />
             </Provider>
         )
-        return res.status(status).send(html)
+        return (
+            res.status(status).send(
+                renderComponentWithRoot(html, store)
+            )
+        )
       });
 }
 
