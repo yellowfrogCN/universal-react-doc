@@ -42,18 +42,21 @@ function handleRoute(res, renderProps) {
     Promise
       .all(readyOnAllActions)
       .then(() => {
-        const html = renderToString(
-            <Provider store={store} >
-                <RouterContext
-                    {...renderProps}
-                />
-            </Provider>
-        )
-        return (
-            res.status(status).send(
-                renderComponentWithRoot(html, store)
+        // setTimeout 函数是为了测试 后台返回数据缓慢时的 前端状态
+        setTimeout(() => {
+            const html = renderToString(
+                <Provider store={store} >
+                    <RouterContext
+                        {...renderProps}
+                    />
+                </Provider>
             )
-        )
+            return (
+                res.status(status).send(
+                    renderComponentWithRoot(html, store)
+                )
+            )
+        }, 0)
       });
 }
 

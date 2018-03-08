@@ -3,7 +3,7 @@ import * as types from '../contants';
 
 function indexReducer (
     state = {
-        title: 'Redux 作者：Dan Abramov',
+        title: 'Redux ?? Dan Abramov',
         list: {}
     },
     action

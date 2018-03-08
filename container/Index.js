@@ -9,19 +9,18 @@ import {
 } from '../action/aboutAction.js';
 
 class Index extends Component {
-
     static readyOnActions(dispatch) {
         return Promise.all([
             // 你可以用mapDispatchToProps也行
             // 直接用dispatch调用也行
             dispatch(getDan()),
-            dispatch(getTJ())
+            // dispatch(getTJ())
         ]);
     }
     componentDidMount () {
         console.log('调用 Index 组件!', this.props);
         const { dispatch } = this.props;
-        // Index.readyOnActions(dispatch)
+        Index.readyOnActions(dispatch)
     }
     render () {
         const {data: { title, list }} = this.props;

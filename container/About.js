@@ -9,14 +9,14 @@ class About extends Component {
         return Promise.all([
             // 你可以用mapDispatchToProps也行
             // 直接用dispatch调用也行
-            dispatch(getDan()),
+            // dispatch(getDan()),
             dispatch(getTJ())
         ]);
     }
     componentDidMount () {
         console.log('调用 About 组件!', this.props);
         const { dispatch } = this.props;
-        // About.readyOnActions(dispatch);
+        About.readyOnActions(dispatch);
     }
     render () {
         const {data: { title, list }} = this.props;

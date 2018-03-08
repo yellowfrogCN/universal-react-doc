@@ -33,10 +33,10 @@ class Root extends React.Component {
                 </div>
                 <ul>
                     <li>
-                        <Link to='/'>Index</Link>
+                        <Link to='/'>Dan大神</Link>
                     </li>
                     <li>
-                        <Link to='/about'>About</Link>
+                        <Link to='/tj'>TJ大神</Link>
                     </li>
                 </ul>
                 {this.props.children}
